@@ -48,6 +48,10 @@ export class Links {
 						// app manifest
 						node.attrs.rel === "manifest"
 					) ||
+					(tagName === "link" && 
+						node.attrs.as === "font" &&
+						node.attrs.type.startsWith("font/")
+					) ||
 					// media
 					tagName === "img" ||
 					tagName === "audio" ||
