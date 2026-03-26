@@ -38,8 +38,16 @@ export class Links {
 			eachURL: function(url, attr, tagName, node) {
 				if(url.startsWith("#") ||
 					url.startsWith("javascript:") ||
-					// app icons
-					(tagName === "link" && (node.attrs.rel === "icon" || node.attrs.rel === "apple-touch-icon" || node.attrs.rel === "apple-touch-icon-precomposed")) ||
+					// forms
+					tagName === "form" && attr === "action" ||
+					(tagName === "link" && (
+						// app icons
+						node.attrs.rel === "icon" ||
+						node.attrs.rel === "apple-touch-icon" ||
+						node.attrs.rel === "apple-touch-icon-precomposed") ||
+						// app manifest
+						node.attrs.rel === "manifest"
+					) ||
 					// media
 					tagName === "img" ||
 					tagName === "audio" ||
