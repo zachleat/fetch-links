@@ -29,6 +29,7 @@ export class Links {
 		return (new URL(url, origin)).toString();
 	}
 
+	// TODO de-duplicate via subdomain redirects (see speedlify 11ty leaderboards) e.g. 11ty.dev versus www.11ty.dev
 	async findUrls(html, options = {}) {
 		let { originalUrl } = options;
 		let urls = new Map();
