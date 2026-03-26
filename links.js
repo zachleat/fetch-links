@@ -36,7 +36,7 @@ export class Links {
 
 		let posthtmlOptions = {
 			eachURL: function(url, attr, tagName, node) {
-				if(url.startsWith("#") || tagName === "img" || tagName === "video" || tagName === "source") {
+				if(url.startsWith("#") || url.startsWith("javascript:") || tagName === "img" || tagName === "video" || tagName === "source") {
 					return url;
 				}
 
