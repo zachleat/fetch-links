@@ -36,7 +36,15 @@ export class Links {
 
 		let posthtmlOptions = {
 			eachURL: function(url, attr, tagName, node) {
-				if(url.startsWith("#") || url.startsWith("javascript:") || tagName === "img" || tagName === "video" || tagName === "source") {
+				if(url.startsWith("#") ||
+					url.startsWith("javascript:") ||
+					// app icons
+					(tagName === "link" && (node.attrs.rel === "icon" || node.attrs.rel === "apple-touch-icon" || node.attrs.rel === "apple-touch-icon-precomposed")) ||
+					// media
+					tagName === "img" ||
+					tagName === "audio" ||
+					tagName === "video" ||
+					tagName === "source") {
 					return url;
 				}
 
