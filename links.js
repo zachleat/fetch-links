@@ -101,14 +101,24 @@ export class Links {
 		});
 	}
 
+	static stripProtocol(url) {
+		if(url.startsWith("https://")) {
+			url = url.slice("https://".length);
+		} else if(url.startsWith("http://")) {
+			url = url.slice("http://".length);
+		}
+		return url;
+	}
+
 	static onlyKeepExternal(entry, originalUrl) {
 		if(entry.type) { // keep feeds and other important types
 			return true;
 		}
 
 		let comparison = originalUrl || "https://example.com";
-		let u = new URL(entry.url, comparison);
-		return !u.toString().startsWith(comparison);
+		let u = this.stripProtocol((new URL(entry.url, comparison)).toString());
+		
+		return !u.startsWith(this.stripProtocol(comparison));
 	}
 
 	static onlyKeepRelevant(entry) {
