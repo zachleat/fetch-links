@@ -12,6 +12,7 @@ test("zachleat.com", async (t) => {
 	// let originalUrl = "https://aaadaaam.com/";
 	// let originalUrl = "https://torvalds-family.blogspot.com/";
 	// let originalUrl = "https://wesbos.com/";
+	// let originalUrl = "https://chriscoyier.net/";
 
 	let filtered = await Links.find(originalUrl);
 	// console.log( filtered );
