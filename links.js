@@ -123,6 +123,7 @@ export class Links {
 
 	static onlyKeepRelevant(entry) {
 		if(entry.via.find(via => via.startsWith("script[") ||
+				via.includes(`[rel="preload"]`) ||
 				via.includes(`[rel="dns-prefetch"]`) ||
 				via.includes(`[rel="token_endpoint"]`) ||
 				via.includes(`[rel="authorization_endpoint"]`) ||
