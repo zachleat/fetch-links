@@ -70,7 +70,7 @@ export class Links {
 			.filter(entry => this.onlyKeepExternal(entry, originalUrl))
 			.filter(entry => this.onlyKeepRelevant(entry));
 
-		return this.sortByRelMe(filtered);
+		return filtered;
 	}
 
 	static sortByRelMe(results) {
