@@ -3,9 +3,10 @@ import posthtml from "posthtml";
 import posthtmlUrls from "@11ty/posthtml-urls";
 
 export class Links {
-	static async find(originalUrl) {
+	static async find(originalUrl, options = {}) {
+		let { fetchOptions } = options;
 		let ln = new Links();
-		let html = await ln.fetch(originalUrl);
+		let html = await ln.fetch(originalUrl, fetchOptions);
 		let urls = await ln.findUrls(html, {
 			originalUrl
 		});
@@ -13,14 +14,15 @@ export class Links {
 		return Links.filterAll(urls, { originalUrl });
 	}
 
-	async fetch(url) {
-		return Fetch(url, {
+	async fetch(url, options = {}) {
+		let fetchOptions = Object.assign({
 			type: "text",
-		},
-		{
-			verbose: true,
+			// duration: "1d",
+			// verbose: true,
 			showErrors: true,
-		});
+		}, options);
+
+		return Fetch(url, fetchOptions);
 	}
 
 	static normalizeUrl(url, origin) {
