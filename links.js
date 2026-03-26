@@ -43,12 +43,22 @@ export class Links {
 				let normalized = originalUrl ? Links.normalizeUrl(url, originalUrl) : url;
 				let key = normalized;
 				let via = `${tagName}[${attr}]${node.attrs.rel ? `[rel="${node.attrs.rel}"]` : ""}`;
+				let type;
+				if(node.attrs.rel && (node.attrs.type === "application/atom+xml" || node.attrs.type === "application/rss+xml")) {
+					type = "feed";
+				}
+
 				if(urls.has(key)) {
-					urls.get(key).via.add(via);
+					let entry = urls.get(key);
+					entry.via.add(via);
+					if(!entry.type) {
+						entry.type = type;
+					}
 				} else {
 					urls.set(key, {
 						url: normalized,
 						via: new Set([via]),
+						type,
 					});
 				}
 
@@ -92,6 +102,10 @@ export class Links {
 	}
 
 	static onlyKeepExternal(entry, originalUrl) {
+		if(entry.type) { // keep feeds and other important types
+			return true;
+		}
+
 		let comparison = originalUrl || "https://example.com";
 		let u = new URL(entry.url, comparison);
 		return !u.toString().startsWith(comparison);
