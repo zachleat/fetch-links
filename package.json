@@ -1,6 +1,6 @@
 {
   "name": "@zachleat/fetch-links",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Utility to fetch hyperlinks from a URL.",
   "main": "links.js",
   "type": "module",
