@@ -26,7 +26,32 @@ export class Links {
 	}
 
 	static normalizeUrl(url, origin) {
-		return (new URL(url, origin)).toString();
+		let u = new URL(url, origin);
+
+		// github.com/username/ becomes github.com/username (for no real good reason)
+		if(u.hostname === "github.com" && u.pathname.endsWith("/")) {
+			u.pathname = u.pathname.slice(0, -1);
+		}
+
+		return u.toString();
+	}
+
+	static fetchContent(node) {
+		// node has children
+		if(Array.isArray(node?.content)) {
+			let children = node.content.filter(entry => {
+				return typeof entry !== "string" || !entry.startsWith("<!--") && !entry.endsWith("-->");
+			}).filter(Boolean);
+
+			if(children.length > 0) {
+				return " " + children.map(child => this.fetchContent(child)).filter(Boolean).join("");
+			}
+		}
+
+		if(typeof node === "string") {
+			return node;
+		}
+		return "";
 	}
 
 	// TODO de-duplicate via subdomain redirects (see speedlify 11ty leaderboards) e.g. 11ty.dev versus www.11ty.dev
@@ -38,19 +63,24 @@ export class Links {
 			eachURL: function(url, attr, tagName, node) {
 				if(url.startsWith("#") ||
 					url.startsWith("javascript:") ||
+					url.startsWith("at://") ||
 					// forms
 					tagName === "form" && attr === "action" ||
 					(tagName === "link" && (
 						// app icons
 						node.attrs.rel === "icon" ||
+						node.attrs.rel === "mask-icon" ||
+						node.attrs.rel === "shortcut icon" ||
 						node.attrs.rel === "apple-touch-icon" ||
 						node.attrs.rel === "apple-touch-icon-precomposed") ||
 						// app manifest
-						node.attrs.rel === "manifest"
+						node.attrs.rel === "manifest" ||
+						// script
+						node.attrs.rel === "modulepreload"
 					) ||
 					(tagName === "link" && 
 						node.attrs.as === "font" &&
-						node.attrs.type.startsWith("font/")
+						node.attrs.type?.startsWith("font/")
 					) ||
 					// media
 					tagName === "img" ||
@@ -61,11 +91,20 @@ export class Links {
 				}
 
 				let normalized = originalUrl ? Links.normalizeUrl(url, originalUrl) : url;
-				let key = normalized;
+				let key = Links.stripProtocol(normalized.toLowerCase());
 				let via = `${tagName}[${attr}]${node.attrs.rel ? `[rel="${node.attrs.rel}"]` : ""}`;
 				let type;
+				let priority = 0;
+
+				// TODO add a scope to the section (header/footer/main)
+				let content = Links.fetchContent(node).trim();
+
 				if(node.attrs.rel && (node.attrs.type === "application/atom+xml" || node.attrs.type === "application/rss+xml")) {
 					type = "feed";
+					priority = 1;
+				}
+				if(node.attrs?.rel === "me") {
+					priority = 1;
 				}
 
 				if(urls.has(key)) {
@@ -74,11 +113,19 @@ export class Links {
 					if(!entry.type) {
 						entry.type = type;
 					}
+					if(!entry.priority) {
+						entry.priority = priority;
+					}
+					if(!entry.content) {
+						entry.content = content;
+					}
 				} else {
 					urls.set(key, {
 						url: normalized,
 						via: new Set([via]),
 						type,
+						priority,
+						content,
 					});
 				}
 
@@ -147,6 +194,9 @@ export class Links {
 				via.includes(`[rel="dns-prefetch"]`) ||
 				via.includes(`[rel="token_endpoint"]`) ||
 				via.includes(`[rel="authorization_endpoint"]`) ||
+				via.includes(`[rel="indieauth-metadata"]`) ||
+				via.includes(`[rel="micropub"]`) ||
+				via.includes(`[rel="microsub"]`) ||
 				via.includes(`[rel="publickey"]`) ||
 				via.includes(`[rel="preconnect"]`) ||
 				via.includes(`[rel="webmention"]`) ||
