@@ -90,8 +90,8 @@ export class Links {
 					return url;
 				}
 
-				let normalized = originalUrl ? Links.normalizeUrl(url, originalUrl) : url;
-				let key = Links.stripProtocol(normalized.toLowerCase());
+				let normalizedUrl = originalUrl ? Links.normalizeUrl(url, originalUrl) : url;
+				let key = Links.stripProtocol(normalizedUrl.toLowerCase());
 				let via = `${tagName}[${attr}]${node.attrs.rel ? `[rel="${node.attrs.rel}"]` : ""}`;
 				let type;
 				let priority = 0;
@@ -99,7 +99,7 @@ export class Links {
 				// TODO add a scope to the section (header/footer/main)
 				let content = Links.fetchContent(node).trim();
 
-				if(node.attrs.rel && (node.attrs.type === "application/atom+xml" || node.attrs.type === "application/rss+xml")) {
+				if(node.attrs.rel && (node.attrs.type === "application/atom+xml" || node.attrs.type === "application/rss+xml" || node.attrs.type === "application/json")) {
 					type = "feed";
 					priority = 1;
 				}
@@ -121,7 +121,7 @@ export class Links {
 					}
 				} else {
 					urls.set(key, {
-						url: normalized,
+						url: normalizedUrl,
 						via: new Set([via]),
 						type,
 						priority,
