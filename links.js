@@ -36,6 +36,14 @@ export class Links {
 		return u.toString();
 	}
 
+	static isTopLevel(url) {
+		if(!url) {
+			return false;
+		}
+		let u = new URL(url);
+		return u.pathname === "/" && !u.search && !u.hash;
+	}
+
 	static fetchContent(node) {
 		// node has children
 		if(Array.isArray(node?.content)) {
@@ -106,6 +114,9 @@ export class Links {
 				if(node.attrs?.rel === "me") {
 					priority = 1;
 				}
+				// if(Links.isTopLevel(normalizedUrl)) {
+				// 	priority = 1;
+				// }
 
 				if(urls.has(key)) {
 					let entry = urls.get(key);
