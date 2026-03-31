@@ -188,15 +188,23 @@ export class Links {
 		return url;
 	}
 
+	static stripSearch(url) {
+		let u = new URL(url);
+		u.search = "";
+		return u.toString()
+	}
+
 	static onlyKeepExternal(entry, originalUrl) {
 		if(entry.type) { // keep feeds and other important types
 			return true;
 		}
 
-		let comparison = originalUrl || "https://example.com";
-		let u = this.stripProtocol((new URL(entry.url, comparison)).toString());
-		
-		return !u.startsWith(this.stripProtocol(comparison));
+		let contextUrl = originalUrl || "https://example.com";
+
+		let entryUrl = new URL(entry.url, contextUrl);
+		let u = this.stripProtocol(entryUrl.toString());
+
+		return !u.startsWith(this.stripProtocol(this.stripSearch(contextUrl)));
 	}
 
 	static onlyKeepRelevant(entry) {
