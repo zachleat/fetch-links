@@ -27,6 +27,7 @@ export class Links {
 
 	static normalizeUrl(url, origin) {
 		let u = new URL(url, origin);
+		u.hash = "";
 
 		// github.com/username/ becomes github.com/username (for no real good reason)
 		if(u.hostname === "github.com" && u.pathname.endsWith("/")) {
@@ -69,9 +70,10 @@ export class Links {
 
 		let posthtmlOptions = {
 			eachURL: function(url, attr, tagName, node) {
-				if(url.startsWith("#") ||
-					url.startsWith("javascript:") ||
-					url.startsWith("at://") ||
+				if(url.startsWith("#") || // hash links
+					url.startsWith("javascript:") || // JavaScript links
+					url.startsWith("about:") || // about:blank
+					url.startsWith("at://") || // atproto
 					// forms
 					tagName === "form" && attr === "action" ||
 					(tagName === "link" && (
@@ -95,6 +97,8 @@ export class Links {
 					tagName === "audio" ||
 					tagName === "video" ||
 					tagName === "source") {
+
+					// do nothing
 					return url;
 				}
 
@@ -105,7 +109,7 @@ export class Links {
 				let priority = 0;
 
 				// TODO add a scope to the section (header/footer/main)
-				let content = Links.fetchContent(node).trim();
+				let content = Links.fetchContent(node).trim() || node.attrs?.["aria-label"] || node.attrs?.title || "";
 
 				if(node.attrs.rel && (node.attrs.type === "application/atom+xml" || node.attrs.type === "application/rss+xml" || node.attrs.type === "application/json")) {
 					type = "feed";
@@ -157,7 +161,9 @@ export class Links {
 
 		let filtered = results
 			.filter(entry => this.onlyKeepExternal(entry, originalUrl))
-			.filter(entry => this.onlyKeepRelevant(entry));
+			.filter(entry => this.onlyKeepRelevant(entry))
+			.filter(entry => this.onlyKeepLabeled(entry))
+			.filter(entry => this.onlyKeepNonPermalinks(entry));
 
 		return filtered;
 	}
@@ -205,6 +211,60 @@ export class Links {
 		let u = this.stripProtocol(entryUrl.toString());
 
 		return !u.startsWith(this.stripProtocol(this.stripSearch(contextUrl)));
+	}
+
+	static isPermalink(url) {
+		let u;
+		try {
+			u = new URL(url);
+		} catch(e) {
+			return false;
+		}
+
+		let host = u.hostname.replace(/^(www|m|mobile)\./, "");
+		let path = u.pathname;
+
+		// Mastodon/fediverse statuses (any host)
+		if(/^\/@[^/]+\/\d+\/?$/.test(path) || /^\/users\/[^/]+\/statuses\/\d+/.test(path)) {
+			return true;
+		}
+
+		switch(host) {
+			case "bsky.app":
+				return /^\/profile\/[^/]+\/post\//.test(path);
+			case "twitter.com":
+			case "x.com":
+				return /^\/[^/]+\/status\//.test(path);
+			case "youtube.com":
+				return path === "/watch" || /^\/(shorts|live)\//.test(path);
+			case "youtu.be":
+				return path.length > 1;
+			case "threads.net":
+			case "threads.com":
+				return /^\/@[^/]+\/post\//.test(path);
+			case "news.ycombinator.com":
+				return path === "/item";
+			case "lobste.rs":
+				return /^\/s\//.test(path);
+		}
+
+		return false;
+	}
+
+	// Drop social posts, videos, and discussion threads
+	static onlyKeepNonPermalinks(entry) {
+		if(entry.type) {
+			return true;
+		}
+		return !this.isPermalink(entry.url);
+	}
+
+	// Drop unlabeled anchors (e.g. avatar-only webmention facepiles)
+	static onlyKeepLabeled(entry) {
+		if(entry.type || entry.priority || entry.content) {
+			return true;
+		}
+		return !entry.via.every(via => via.startsWith("a["));
 	}
 
 	static onlyKeepRelevant(entry) {
