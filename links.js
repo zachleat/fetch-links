@@ -163,7 +163,7 @@ export class Links {
 			.filter(entry => this.onlyKeepExternal(entry, originalUrl))
 			.filter(entry => this.onlyKeepRelevant(entry))
 			.filter(entry => this.onlyKeepLabeled(entry))
-			.filter(entry => this.onlyKeepNonPermalinks(entry));
+			.filter(entry => this.onlyKeepNonSocialPosts(entry));
 
 		return filtered;
 	}
@@ -213,7 +213,7 @@ export class Links {
 		return !u.startsWith(this.stripProtocol(this.stripSearch(contextUrl)));
 	}
 
-	static isPermalink(url) {
+	static isSocialPost(url) {
 		let u;
 		try {
 			u = new URL(url);
@@ -252,11 +252,11 @@ export class Links {
 	}
 
 	// Drop social posts, videos, and discussion threads
-	static onlyKeepNonPermalinks(entry) {
+	static onlyKeepNonSocialPosts(entry) {
 		if(entry.type) {
 			return true;
 		}
-		return !this.isPermalink(entry.url);
+		return !this.isSocialPost(entry.url);
 	}
 
 	// Drop unlabeled anchors (e.g. avatar-only webmention facepiles)

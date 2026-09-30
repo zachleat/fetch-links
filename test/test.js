@@ -53,7 +53,7 @@ test("Unlabeled anchors are removed", async (t) => {
 });
 
 test("Social posts, videos, and discussion threads are removed", async (t) => {
-	let permalinks = [
+	let socialPosts = [
 		"https://bsky.app/profile/zachleat.com/post/3mw4gqd37is2v",
 		"https://fediverse.zachleat.com/@zachleat/117315158434228268",
 		"https://mastodon.social/users/westbrook/statuses/117332289538177873",
@@ -76,7 +76,7 @@ test("Social posts, videos, and discussion threads are removed", async (t) => {
 		"https://lobste.rs/~zachleat",
 	];
 
-	let results = [...permalinks, ...profiles].map(url => ({ url, via: ["a[href]"], content: "Link" }));
+	let results = [...socialPosts, ...profiles].map(url => ({ url, via: ["a[href]"], content: "Link" }));
 	let filtered = Links.filterAll(results, { originalUrl: "https://example.com/" });
 	assert.deepEqual(filtered.map(entry => entry.url), profiles);
 });
