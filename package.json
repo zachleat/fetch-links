@@ -3,6 +3,9 @@
   "version": "2.0.0",
   "description": "Utility to fetch hyperlinks from a URL.",
   "main": "links.js",
+  "files": [
+    "links.js"
+  ],
   "type": "module",
   "scripts": {
     "test": "node --test"
