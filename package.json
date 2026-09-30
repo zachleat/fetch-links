@@ -21,7 +21,7 @@
 	},
 	"homepage": "https://github.com/zachleat/fetch-links#readme",
   "dependencies": {
-    "@11ty/eleventy-fetch": "^5.1.2",
+    "@11ty/eleventy-fetch": "^5.1.3",
     "@11ty/posthtml-urls": "^1.0.3",
     "posthtml": "^0.16.7"
   },
