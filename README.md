@@ -20,3 +20,7 @@ await Links.find("https://www.zachleat.com/");
   // …
 ] */
 ```
+
+## Changelog
+
+- `v2.0.0` Strips hashes from URLs. Filters out social media post URLs (keeping user profile URLs).
