@@ -9,6 +9,9 @@
   },
   "author": "Zach Leatherman <zachleatherman@gmail.com> (https://zachleat.com/)",
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "publishConfig": {
 		"access": "public"
 	},
