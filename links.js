@@ -1,5 +1,5 @@
 import Fetch from "@11ty/eleventy-fetch";
-import posthtml from "posthtml";
+import posthtml from "@11ty/posthtml";
 import posthtmlUrls from "@11ty/posthtml-urls";
 
 export class Links {
